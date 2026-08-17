@@ -1,8 +1,17 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
+    public static Player Instance { get; private set; }
+
+    public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
+    public class OnSelectedCounterChangedEventArgs : EventArgs
+    {
+        public ClearCounter selectedCounter;
+    }
+
 
     [SerializeField] private float movementSpeed = 7f;
     [SerializeField] private GameInput gameInput;
@@ -10,7 +19,18 @@ public class Player : MonoBehaviour
 
     private bool isWalking;
     private Vector3 lastInteractDir;
+    private ClearCounter selectedCounter;
 
+
+    private void Awake()
+    {
+        if (Instance != null)
+        {
+            Debug.LogError("There is more than one Player instance");
+        }
+        
+        Instance = this;
+    }
 
     private void Start()
     {
@@ -89,33 +109,43 @@ public class Player : MonoBehaviour
         }
 
         float interactionDistance = 2f;
-        bool hit = Physics.Raycast(transform.position, lastInteractDir, out RaycastHit raycastHit, interactionDistance, countersLayerMask);
-        if (hit)
+        if (Physics.Raycast(transform.position, lastInteractDir, out RaycastHit raycastHit, interactionDistance, countersLayerMask))
         {
-            raycastHit.transform.TryGetComponent(out ClearCounter clearCounter);
-            if (clearCounter != null)
+            if(raycastHit.transform.TryGetComponent(out ClearCounter clearCounter))
+            {    
+                if (clearCounter != selectedCounter)
+                {
+                    SetSelectedCounter(clearCounter);
+                }
+            }
+            else
             {
-                
+                SetSelectedCounter(null);
             }
         }
+        else
+        {
+            SetSelectedCounter(null);
+        }
+
+        Debug.Log("Selected Counter: " + selectedCounter);
     }
 
     private void GameInput_OnInteractAction(object sender, System.EventArgs e)
     {
-        if (lastInteractDir != Vector3.zero)
+        if (selectedCounter != null)
         {
-            float interactionDistance = 2f;
-            bool hit = Physics.Raycast(transform.position, lastInteractDir, out RaycastHit raycastHit, interactionDistance, countersLayerMask);
-            if (hit)
-            {
-                raycastHit.transform.TryGetComponent(out ClearCounter clearCounter);
-                if (clearCounter != null)
-                {
-                    clearCounter.Interact();
-                }
-            }
+            selectedCounter.Interact();
         }
     }
+
+    private void SetSelectedCounter(ClearCounter selectedCounter)
+    {
+        this.selectedCounter = selectedCounter;
+
+        OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs { selectedCounter = selectedCounter });
+    }
+
     public bool IsWalking()
     {
         return isWalking;
