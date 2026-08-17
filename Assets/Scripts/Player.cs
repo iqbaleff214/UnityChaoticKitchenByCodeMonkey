@@ -28,7 +28,7 @@ public class Player : MonoBehaviour
         {
             Debug.LogError("There is more than one Player instance");
         }
-        
+
         Instance = this;
     }
 
@@ -127,8 +127,6 @@ public class Player : MonoBehaviour
         {
             SetSelectedCounter(null);
         }
-
-        Debug.Log("Selected Counter: " + selectedCounter);
     }
 
     private void GameInput_OnInteractAction(object sender, System.EventArgs e)
