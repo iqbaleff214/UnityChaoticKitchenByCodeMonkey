@@ -12,6 +12,12 @@ public class BaseCounter : MonoBehaviour, IKitchenObjectParent
         Debug.Log("BaseCounter Interact method called. Override this method in derived classes.");
     }
 
+    public virtual void Action(Player player)
+    {
+        // This method is meant to be overridden by derived classes.
+        Debug.Log("BaseCounter Action method called. Override this method in derived classes.");
+    }
+
     public Transform GetKitchenObjectSpawnPoint()
     {
         return counterSpawnPoint;
