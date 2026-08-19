@@ -1,14 +1,10 @@
 using System;
 using UnityEngine;
 
-public class CuttingCounter : BaseCounter
+public class CuttingCounter : BaseCounter, IHasProgress
 {
 
-    public event EventHandler<OnProgressChangedEventArgs> OnProgressChanged;
-    public class OnProgressChangedEventArgs : EventArgs
-    {
-        public float progressNormalized;
-    }
+    public event EventHandler<IHasProgress.OnProgressChangedEventArgs> OnProgressChanged;
     public event EventHandler OnCut;
 
 
@@ -25,7 +21,7 @@ public class CuttingCounter : BaseCounter
                 // Player is carrying a KitchenObject that can be cut, place it on the counter
                 player.GetKitchenObject().SetKitchenObjectParent(this);
                 cuttingProgress = 0;
-                OnProgressChanged?.Invoke(this, new OnProgressChangedEventArgs
+                OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs
                 {
                     progressNormalized = (float) cuttingProgress / GetCuttingRecipeSOWithInput(GetKitchenObject().GetKitchenObjectSO()).cuttingProgressMax
                 });
@@ -68,7 +64,7 @@ public class CuttingCounter : BaseCounter
                     KitchenObject.SpawnKitchenObject(outputKitchenObjectSO, this);
                 }
 
-                OnProgressChanged?.Invoke(this, new OnProgressChangedEventArgs
+                OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs
                 {
                     progressNormalized = (float) cuttingProgress / cuttingRecipe.cuttingProgressMax
                 });
